@@ -7,6 +7,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Scanner;
+import java.time.LocalDateTime;  
+import java.time.format.DateTimeFormatter;  
 
 
 public class Command {
@@ -113,9 +115,9 @@ public class Command {
                     System.out.println("Product Description Updated Successfully in products.txt");
                     System.out.println("---------------------------------------------------------"); 
                     System.out.println("------------------------------------------------");
-                    System.out.println("[id | name | product | description ]");
+                    System.out.println("[id | name | product | total | description ]");
                     System.out.println("------------------------------------------------");
-                    System.out.println("[ "+proid+" | "+user+" |   "+product_name+" |     "+description+" ]");
+                    System.out.println("[ "+proid+" | "+user+" |   "+product_name+"   | "+total+"   |  "+description+" ]");
                     System.out.println("---------------------------------------------------");
                     System.out.println(" ");
                 }    
@@ -132,7 +134,14 @@ public class Command {
         
     }
 
-    public void checkRank(String part) throws FileNotFoundException, IOException {
+    public void checkRank() throws FileNotFoundException, IOException {
+        Scanner in = new Scanner(System.in);
+        System.out.println(" ");
+        System.out.println("Please Enter Username");
+        String part = in.nextLine();
+        System.out.println("------------------------------");
+
+
         File per = new File("performance.txt");
         BufferedReader read = new BufferedReader(new FileReader(per));
         Object[] list = read.lines().toArray();
@@ -153,21 +162,45 @@ public class Command {
                 int points = Integer.parseInt(ranks[3]);
                 int goods = Integer.parseInt(ranks[4]);
                 int returns = Integer.parseInt(ranks[5]);
+                String date = ranks[6];
                 avail = 1;
                 System.out.println("---------------------------------------------------------------------");
-                System.out.println("[ UserID | UserName | Rank | Points | Products Left | Return Buyers ]");
+                System.out.println("[ UserID | UserName | Rank | Points | Products Left | Return Buyers | Date        ]");
                 System.out.println("-----------------------------------------------------------------------");
-                System.out.println("[ "+uid+"         "+part+"       "+position+"/"+counter+"       "+points+"          "+goods+"              "+returns+" ]");
+                System.out.println("[ "+uid+"         "+part+"     "+position+"/"+counter+"     "+points+"          "+goods+"             "+returns+"            "+date+" ]");
                 System.out.println("-----------------------------------------------------------------------");
+
+                File rp = new File("response.txt");
+                BufferedWriter bf = new BufferedWriter(new FileWriter(rp,true));
+                PrintWriter write = new PrintWriter(bf);
+                write.println(part+","+java.time.LocalTime.now()+", Resquest Seen");
+                write.flush();
+                write.close();
             }
         }
         read.close();
+        in.close();
 
         if(avail==0){
-            System.out.println("-------------------------------------------------------------");
-            System.out.println("Sorry, No User Exist As "+part+" In Our Records");
-            System.out.println("Enter Proper Username! or Records Not Sent From Server As Yet");
-            System.out.println("-------------------------------------------------------------");
+            File rq = new File("request.txt");
+            BufferedWriter buff = new BufferedWriter(new FileWriter(rq,true));
+            PrintWriter pt = new PrintWriter(buff);
+            pt.println(part+","+java.time.LocalTime.now()+", Resquesting for ranks");
+            pt.flush();
+            pt.close();
+
+            System.out.println("-------------------------------------------------------------------------------------------");
+            System.out.println("Hello "+part+", These are the possible reasons we have for not having your Performance Results");
+            System.out.println("---------------------------------------------------------------------------------------------");
+            System.out.println("1. You could have entered wrong username, this is because we have no records with this username");
+            System.out.println(" ");
+            System.out.println("2. If you initially registered, then wait for less than 10 minutes as we have submitted your request to the server");
+            System.out.println("Hopefully, within 10 mins your results shall be out and check again");
+            System.out.println(" ");
+            System.out.println("3. If after 10 minutes you can't access your results, This shows your not registered initally");
+            System.out.println("----------------------------------------------------------------------");
+            System.out.println("Thank you, we are committed to serving you always");
+            System.out.println("---------------------------------------------------------------------------------------------------------------------");
         }
     }
 
@@ -176,6 +209,8 @@ public class Command {
         File file1 = new File("participants.txt");
         File file2 = new File("products.txt");
         File file3 = new File("performance.txt");
+        File file4 = new File("request.txt");
+        File file5 = new File("response.txt");
 
         if(file1.exists()){
             System.out.println(" ");
@@ -210,6 +245,27 @@ public class Command {
             System.out.println("-----------------------------------------------------");
         }
 
+        if(file4.exists()){
+            System.out.println(" ");
+            System.out.println(("File Is Existing as request.txt"));
+            System.out.println("--------------------------------------");
+        }else {
+            file4.createNewFile();
+            System.out.println(" ");
+            System.out.println("New File Is Created Successfully as request.txt");
+            System.out.println("-----------------------------------------------------");
+        }
+
+        if(file5.exists()){
+            System.out.println(" ");
+            System.out.println(("File Is Existing as response.txt"));
+            System.out.println("--------------------------------------");
+        }else {
+            file5.createNewFile();
+            System.out.println(" ");
+            System.out.println("New File Is Created Successfully as response.txt");
+            System.out.println("-----------------------------------------------------");
+        }
         
 
         Command arg = new Command();
@@ -229,9 +285,8 @@ public class Command {
                 String description = args[2];
                 arg.updateDesc(product_name, description);
 
-            }else if(args.length == 2 && args[0].equals("Performance")){
-                String uname = args[1];
-                arg.checkRank(uname);
+            }else if(args.length == 1 && args[0].equals("Performance")){
+                arg.checkRank();
 
             }else {
                 System.out.println("Invalid Commands!");
@@ -239,8 +294,8 @@ public class Command {
                 System.out.println("Please follow this menu in trying work with the command-line");
                 System.out.println(" ");
                 System.out.println("Register <name> <password> <product> <date_of_birth>");
-                System.out.println("Post_product <product_name>  <description> <name>");
-                System.out.println("Performance <name>");
+                System.out.println("Post_product <product_name>  <description>");
+                System.out.println("Performance");
                 System.out.println("-------------------------------------------------------------");
             }
 
